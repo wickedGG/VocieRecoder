@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">VocieRecoder</string>
+
+
+
+
+
+    <string name="pager_position">%s / %s</string>
+
 </resources>

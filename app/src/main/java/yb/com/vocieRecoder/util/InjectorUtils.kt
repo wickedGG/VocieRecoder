@@ -16,6 +16,7 @@
 
 package yb.com.vocieRecoder.util
 
+import yb.com.vocieRecoder.util.repository.PlayerRepository
 import yb.com.vocieRecoder.util.repository.RecorderRepository
 import yb.com.vocieRecoder.util.viewmodels.TrainingViewModel
 
@@ -24,6 +25,9 @@ import yb.com.vocieRecoder.util.viewmodels.TrainingViewModel
  */
 object InjectorUtils {
 
+    private fun providePlayerRepository(): PlayerRepository {
+        return PlayerRepository.getInstance()
+    }
 
     private fun provideRecorderRepository(): RecorderRepository {
         return RecorderRepository.getInstance()
@@ -31,7 +35,7 @@ object InjectorUtils {
 
 
     fun provideTrainingViewModel(): TrainingViewModel.Factory {
-        return TrainingViewModel.Factory(provideRecorderRepository())
+        return TrainingViewModel.Factory(providePlayerRepository(), provideRecorderRepository())
     }
 
 }

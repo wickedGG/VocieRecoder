@@ -1,8 +1,5 @@
 package yb.com.vocieRecoder
 
-import android.util.Log
-import java.util.*
-
 object RecoderConfig {
 
     const val DB_VERSION = 1
@@ -16,9 +13,9 @@ object RecoderConfig {
 
 
 
-    const val DELAY_TIME_SEC: Long = 1000
-    const val DELAY_TIME_HSK: Int = (8 * 60 * DELAY_TIME_SEC).toInt()
-    const val DELAY_TIME_LISTEN: Int = (5 * 60 * DELAY_TIME_SEC).toInt()
+    const val TIME_SEC: Long = 1000
+    const val DELAY_TIME_HSK: Int = (8 * 60 * TIME_SEC).toInt()
+    const val DELAY_TIME_LISTEN: Int = (5 * 60 * TIME_SEC).toInt()
 
 
 

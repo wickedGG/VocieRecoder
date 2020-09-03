@@ -1,219 +1,253 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.MainActivity">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="commonUtil"
+            type="yb.com.vocieRecoder.util.CommonUtil" />
+
+        <variable
+            name="trainingViewModel"
+            type="yb.com.vocieRecoder.util.viewmodels.TrainingViewModel" />
+
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_body"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_margin="10dp"
-        android:background="@drawable/bg_rect_1"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/tv_category"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center_vertical"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="action" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/line_border_1"
-            app:layout_constraintBottom_toBottomOf="@id/tv_category" />
+        android:layout_height="match_parent"
+        tools:context=".ui.MainActivity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_chinese"
+            android:id="@+id/layout_body"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            app:layout_constraintTop_toBottomOf="@+id/tv_category">
+            android:layout_height="350dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/bg_rect_1"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/tv_pinyin"
+                android:id="@+id/tv_category"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="25sp"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).category}"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Nánde qù yínháng" />
+                tools:text="action" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/line_border_1"
+                app:layout_constraintBottom_toBottomOf="@id/tv_category" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layout_chinese"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                app:layout_constraintTop_toBottomOf="@+id/tv_category">
+
+                <TextView
+                    android:id="@+id/tv_pinyin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).pinyin}"
+                    android:textSize="25sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Nánde qù yínháng" />
+
+                <TextView
+                    android:id="@+id/tv_word"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).word}"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_pinyin"
+                    tools:text="男的 去 银行。" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/line_border_1"
+                app:layout_constraintBottom_toBottomOf="@id/layout_chinese" />
 
             <TextView
-                android:id="@+id/tv_word"
+                android:id="@+id/tv_mean"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:layout_height="0dp"
+                android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).mean}"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_pinyin"
-                tools:text="男的 去 银行。" />
-
+                app:layout_constraintTop_toBottomOf="@id/layout_chinese"
+                tools:text="남자는 은행에 갑니다" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/line_border_1"
-            app:layout_constraintBottom_toBottomOf="@id/layout_chinese" />
 
         <TextView
-            android:id="@+id/tv_mean"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="녹음시간"
+            app:layout_constraintBottom_toBottomOf="@id/tv_separator"
+            app:layout_constraintRight_toLeftOf="@id/tv_separator"
+            app:layout_constraintTop_toTopOf="@id/tv_separator" />
+
+        <TextView
+            android:id="@+id/tv_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="|"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layout_chinese"
-            tools:text="남자는 은행에 갑니다" />
+            app:layout_constraintTop_toBottomOf="@+id/layout_body" />
+
+        <TextView
+            android:id="@+id/tv_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="@{commonUtil.getTimeStamp(Integer.toString(trainingViewModel.recordTime))}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_separator"
+            app:layout_constraintLeft_toRightOf="@id/tv_separator"
+            app:layout_constraintTop_toTopOf="@id/tv_separator"
+            tools:text="00:00" />
+
+        <ImageView
+            android:id="@+id/iv_record"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:onClick="@{() -> trainingViewModel.record()}"
+            app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/iv_media"
+            app:layout_constraintTop_toBottomOf="@+id/tv_separator"
+            tools:src="@drawable/ic_round_mic_24" />
+
+        <TextView
+            android:id="@+id/tv_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="녹음하기"
+            android:textSize="13sp"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_record"
+            app:layout_constraintRight_toRightOf="@+id/iv_record"
+            app:layout_constraintTop_toBottomOf="@+id/iv_record" />
+
+        <ImageView
+            android:id="@+id/iv_media"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/ic_baseline_headset_24"
+            app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
+            app:layout_constraintLeft_toRightOf="@+id/iv_record"
+            app:layout_constraintRight_toLeftOf="@+id/iv_google_media"
+            app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
+
+        <TextView
+            android:id="@+id/tv_media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="내발음듣기"
+            android:textSize="13sp"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_media"
+            app:layout_constraintRight_toRightOf="@+id/iv_media"
+            app:layout_constraintTop_toBottomOf="@+id/iv_media" />
+
+        <ImageView
+            android:id="@+id/iv_google_media"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/ic_baseline_record_voice_over_24"
+            app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
+            app:layout_constraintLeft_toRightOf="@+id/iv_media"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
+
+        <TextView
+            android:id="@+id/tv_google_media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="구글친구 발음듣기"
+            android:textSize="13sp"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_google_media"
+            app:layout_constraintRight_toRightOf="@+id/iv_google_media"
+            app:layout_constraintTop_toBottomOf="@+id/iv_google_media" />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/line_border_1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:enabled="@{!trainingViewModel.isFirstPage}"
+                android:gravity="center"
+                android:onClick="@{trainingViewModel.pageChangeButtonListener}"
+                android:paddingLeft="20dp"
+                android:tag="-1"
+                android:text="이전문장"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@{@string/pager_position(trainingViewModel.currentPosition + 1, trainingViewModel.trainingData.size())}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="1 / 5" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:enabled="@{!trainingViewModel.isLastPage()}"
+                android:gravity="center"
+                android:onClick="@{trainingViewModel.pageChangeButtonListener}"
+                android:paddingRight="20dp"
+                android:tag="1"
+                android:text="다음문장"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+</layout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:text="녹음시간"
-        app:layout_constraintBottom_toBottomOf="@id/tv_separator"
-        app:layout_constraintRight_toLeftOf="@id/tv_separator"
-        app:layout_constraintTop_toTopOf="@id/tv_separator" />
-
-    <TextView
-        android:id="@+id/tv_separator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="35dp"
-        android:gravity="center"
-        android:includeFontPadding="false"
-        android:text="|"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_body" />
-
-    <TextView
-        android:id="@+id/tv_timestamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:text="00:00"
-        app:layout_constraintBottom_toBottomOf="@id/tv_separator"
-        app:layout_constraintLeft_toRightOf="@id/tv_separator"
-        app:layout_constraintTop_toTopOf="@id/tv_separator"
-        tools:text="00:00" />
-
-
-    <ImageView
-        android:id="@+id/iv_record"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/ic_round_mic_24"
-        app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/iv_media"
-        app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
-
-    <TextView
-        android:id="@+id/tv_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="녹음하기"
-        app:layout_constraintLeft_toLeftOf="@+id/iv_record"
-        app:layout_constraintRight_toRightOf="@+id/iv_record"
-        app:layout_constraintTop_toBottomOf="@+id/iv_record" />
-
-    <ImageView
-        android:id="@+id/iv_media"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/ic_baseline_headset_24"
-        app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-        app:layout_constraintLeft_toRightOf="@+id/iv_record"
-        app:layout_constraintRight_toLeftOf="@+id/iv_google_media"
-        app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
-
-    <TextView
-        android:id="@+id/tv_media"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="내발음듣기"
-        app:layout_constraintLeft_toLeftOf="@+id/iv_media"
-        app:layout_constraintRight_toRightOf="@+id/iv_media"
-        app:layout_constraintTop_toBottomOf="@+id/iv_media" />
-
-    <ImageView
-        android:id="@+id/iv_google_media"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/ic_baseline_record_voice_over_24"
-        app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-        app:layout_constraintLeft_toRightOf="@+id/iv_media"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
-
-    <TextView
-        android:id="@+id/tv_google_media"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="구글친구 발음듣기"
-        app:layout_constraintLeft_toLeftOf="@+id/iv_google_media"
-        app:layout_constraintRight_toRightOf="@+id/iv_google_media"
-        app:layout_constraintTop_toBottomOf="@+id/iv_google_media" />
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/line_border_1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingLeft="20dp"
-            android:text="이전문장"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent" />
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="1 / 5" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingRight="20dp"
-            android:text="다음문장"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>

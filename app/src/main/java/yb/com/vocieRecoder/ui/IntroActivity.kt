@@ -9,8 +9,9 @@ import io.reactivex.schedulers.Schedulers
 import yb.com.vocieRecoder.AppDatabase
 import yb.com.vocieRecoder.R
 import yb.com.vocieRecoder.RecoderApplication.Companion.getGlobalContext
+import yb.com.vocieRecoder.base.BaseActivity
 
-class IntroActivity : AppCompatActivity() {
+class IntroActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
