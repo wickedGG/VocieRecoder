@@ -53,7 +53,7 @@ class RecorderRepository {
             .observeOn(Schedulers.io())
             .onBackpressureDrop()
             .doOnNext {
-                _recordTime.postValue(it.toInt())
+                _recordTime.postValue(recordTime.minus(it).toInt())
             }.doOnCancel {
                 _recordState.postValue(RECORDER_STATE.CANCEL)
                 stopRecord()
