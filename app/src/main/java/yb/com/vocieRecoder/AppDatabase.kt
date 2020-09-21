@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import yb.com.vocieRecoder.model.TrainingEntity
+import yb.com.vocieRecoder.model.entity.TrainingEntity
 import yb.com.vocieRecoder.RecoderApplication.Companion.getGlobalContext
 import yb.com.vocieRecoder.dao.TrainingDao
 import java.io.BufferedReader

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fontFamily="@font/sans_regular"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:minHeight="48dp"
+    android:paddingStart="10dp"
+    android:singleLine="true"
+    android:textColor="@color/text_white_60"
+    android:textSize="14sp"
+    tools:text="스피너 형식의 아이템이 들어 가는곳" />

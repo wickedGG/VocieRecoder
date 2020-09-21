@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import yb.com.vocieRecoder.model.TrainingEntity
+import yb.com.vocieRecoder.model.entity.TrainingEntity
 
 import io.reactivex.Flowable
 import io.reactivex.Single

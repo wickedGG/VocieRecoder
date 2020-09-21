@@ -71,7 +71,6 @@ object CommonUtil {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
         }
     }
 

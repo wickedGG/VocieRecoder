@@ -1,8 +1,6 @@
 package yb.com.vocieRecoder.util.viewmodels
 
-import android.graphics.drawable.AnimationDrawable
 import android.view.View
-import android.widget.ImageView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -11,34 +9,32 @@ import androidx.lifecycle.ViewModelProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import yb.com.vocieRecoder.AppDatabase
-import yb.com.vocieRecoder.R
 import yb.com.vocieRecoder.RecoderApplication
-import yb.com.vocieRecoder.RecoderApplication.Companion.getGlobalContext
 import yb.com.vocieRecoder.base.BaseViewModel
 import yb.com.vocieRecoder.base.SingleLiveEvent
-import yb.com.vocieRecoder.model.TrainingEntity
-import yb.com.vocieRecoder.util.repository.PlayerRepository
-import yb.com.vocieRecoder.util.repository.PlayerRepository.PLAYER_STATE
-import yb.com.vocieRecoder.util.repository.RecorderRepository
-import yb.com.vocieRecoder.util.repository.RecorderRepository.RECORDER_STATE
+import yb.com.vocieRecoder.model.entity.TrainingEntity
+import yb.com.vocieRecoder.model.repository.PlayerRepository
+import yb.com.vocieRecoder.model.repository.PlayerRepository.PLAYER_STATE
+import yb.com.vocieRecoder.model.repository.RecorderRepository
+import yb.com.vocieRecoder.model.repository.RecorderRepository.RECORDER_STATE
 
 class TrainingViewModel(
     val playerRepository: PlayerRepository,
     val recorderRepository: RecorderRepository
 ) : BaseViewModel() {
+    val title = MutableLiveData<String>()
+
+    var trainingMap = HashMap<String, List<TrainingEntity>>()
     private val _trainingData: MutableLiveData<List<TrainingEntity>> =
         MutableLiveData<List<TrainingEntity>>()
 
-    private val _currentPosition: MutableLiveData<Int> = MutableLiveData<Int>().apply {
-        postValue(0)
-    }
-    private val _isFirstPage = MutableLiveData<Boolean>().apply {
-        postValue(true)
-    }
-    private val _isLastPage = MutableLiveData<Boolean>().apply {
-        postValue(false)
-    }
+    private val _currentPosition: MutableLiveData<Int> =
+        MutableLiveData<Int>().apply { postValue(0) }
+    private val _isFirstPage = MutableLiveData<Boolean>().apply { postValue(true) }
+    private val _isLastPage = MutableLiveData<Boolean>().apply { postValue(false) }
+    private val _bottomSheetShow: MutableLiveData<Boolean> = MutableLiveData<Boolean>()
 
+    val bottomSheetShow: LiveData<Boolean> get() = _bottomSheetShow
     val trainingData: LiveData<List<TrainingEntity>> get() = _trainingData
     val isFirstPage: LiveData<Boolean> get() = _isFirstPage
     val isLastPage: LiveData<Boolean> get() = _isLastPage
@@ -48,7 +44,11 @@ class TrainingViewModel(
     val recordTime: LiveData<Int> get() = recorderRepository.recordTime
 
     private val _lastPageEvent = SingleLiveEvent<Any>()
+    private val _checkMicPermissionEvent = SingleLiveEvent<Any>()
+    private val _sdCardStorageErrorEvent = SingleLiveEvent<Any>()
 
+    val sdCardStorageErrorEvent: LiveData<Any> get() = _sdCardStorageErrorEvent
+    val checkMicPermissionEvent: LiveData<Any> = _checkMicPermissionEvent
     val lastPageEvent: LiveData<Any> get() = _lastPageEvent
 
     val currentPositionObserver = Observer<Int> {
@@ -63,7 +63,9 @@ class TrainingViewModel(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    trainingMap = it.groupBy { it.category } as HashMap
                     _trainingData.postValue(it)
+                    closeBottomSheetIndex()
                 }
         }
     }
@@ -74,7 +76,8 @@ class TrainingViewModel(
         when (recordState.value) {
             RECORDER_STATE.IDLE, RECORDER_STATE.CANCEL, RECORDER_STATE.END -> {
                 trainingData.value?.get(currentPosition.value ?: 0)?.apply {
-                    recorderRepository.startRecord(mediaFile,
+                    recorderRepository.startRecord(
+                        mediaFile,
                         recordTime
                     )
                 }
@@ -90,6 +93,36 @@ class TrainingViewModel(
         recorderRepository.cancelRecord()
     }
 
+    fun checkMic() {
+        _checkMicPermissionEvent.call()
+    }
+
+    fun changePosition(position: Int) {
+        _currentPosition.postValue(position)
+        closeBottomSheetIndex()
+    }
+
+    fun showBottomSheetIndex() {
+        _bottomSheetShow.postValue(true)
+    }
+
+    fun closeBottomSheetIndex() {
+        _bottomSheetShow.postValue(false)
+    }
+
+    fun getTrainingMapIndex(position: Int): Int {
+        return trainingData.value?.get(position)?.let {
+            trainingMap[it.category]?.indexOf(it)
+        } ?: 0
+    }
+
+    fun isFileSystemAvailable(): Boolean {
+        return recorderRepository.isFileSystemAvailable().also {
+            if (it == false) {
+                _sdCardStorageErrorEvent.call()
+            }
+        }
+    }
 
     var pageChangeButtonListener: View.OnClickListener = View.OnClickListener {
         // -1 : 왼쪽 방향
@@ -127,5 +160,9 @@ class TrainingViewModel(
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             return TrainingViewModel(playerRepository, recorderRepository) as T
         }
+    }
+
+    enum class SPEAK_TYPE {
+        SELF, NATIVE
     }
 }

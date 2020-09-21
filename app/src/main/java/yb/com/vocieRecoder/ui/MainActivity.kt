@@ -1,89 +1,46 @@
 package yb.com.vocieRecoder.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
-import android.media.MediaPlayer
-import android.media.MediaRecorder
-import android.net.Uri
-import android.provider.Settings
-import android.util.Log
-import android.view.View.OnClickListener
+import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.bottom_training.*
 import yb.com.vocieRecoder.R
-import yb.com.vocieRecoder.RecoderApplication
 import yb.com.vocieRecoder.RecoderConfig
+import yb.com.vocieRecoder.adapter.TrainingContentAdapter
 import yb.com.vocieRecoder.base.BaseActivity
 import yb.com.vocieRecoder.databinding.ActivityMainBinding
+import yb.com.vocieRecoder.model.entity.TrainingEntity
+import yb.com.vocieRecoder.model.repository.AdapterRepository
 import yb.com.vocieRecoder.util.CommonUtil
 import yb.com.vocieRecoder.util.InjectorUtils
-import yb.com.vocieRecoder.util.repository.RecorderRepository
+import yb.com.vocieRecoder.model.repository.RecorderRepository
 import yb.com.vocieRecoder.util.viewmodels.TrainingViewModel
-import java.io.IOException
 
 class MainActivity : BaseActivity() {
     private lateinit var viewDataBinding: ActivityMainBinding
     private lateinit var trainingViewModel: TrainingViewModel
 
-    private var fileName: String = ""
-
-    private var recorder: MediaRecorder? = null
-
-    private var player: MediaPlayer? = null
-
-    private var permissionToRecordAccepted = false
-    private var permissions: Array<String> =
-        arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-    internal inner class RecordButton(ctx: Context) : AppCompatButton(ctx) {
-
-        var mStartRecording = true
-
-        var clicker: OnClickListener = OnClickListener {
-            onRecord(mStartRecording)
-            text = when (mStartRecording) {
-                true -> "Stop recording"
-                false -> "Start recording"
-            }
-            mStartRecording = !mStartRecording
-        }
-
-        init {
-            text = "Start recording"
-            setOnClickListener(clicker)
-        }
-    }
-
-    internal inner class PlayButton(ctx: Context) : AppCompatButton(ctx) {
-        var mStartPlaying = true
-        var clicker: OnClickListener = OnClickListener {
-            onPlay(mStartPlaying)
-            text = when (mStartPlaying) {
-                true -> "Stop playing"
-                false -> "Start playing"
-            }
-            mStartPlaying = !mStartPlaying
-        }
-
-        init {
-            text = "Start playing"
-            setOnClickListener(clicker)
-        }
-    }
+    private val adapterRepository = AdapterRepository()
+    private var trainingContentAdapter =
+        TrainingContentAdapter(adapterRepository).apply { setHasStableIds(true) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,13 +52,16 @@ class MainActivity : BaseActivity() {
         viewDataBinding.trainingViewModel = trainingViewModel
         viewDataBinding.commonUtil = CommonUtil
 
-        fileName = "${externalCacheDir?.absolutePath}/audiorecordtest.3gp"
+        rc_training.apply {
+            setHasFixedSize(true)
+            adapter = trainingContentAdapter
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        }
 
-        ActivityCompat.requestPermissions(this, permissions, RecoderConfig.REQUEST_AUDIO_PERMISSION)
     }
 
-    override fun subscribeEvnet() {
 
+    override fun subscribeEvnet() {
         trainingViewModel.recordState.observe(this, {
             when (it) {
                 RecorderRepository.RECORDER_STATE.IDLE, RecorderRepository.RECORDER_STATE.CANCEL, RecorderRepository.RECORDER_STATE.END -> {
@@ -125,84 +85,116 @@ class MainActivity : BaseActivity() {
             }
         })
 
-    }
+        trainingViewModel.sdCardStorageErrorEvent.observe(this, Observer {
+            Snackbar.make(viewDataBinding.root,getString(R.string.training_record_msg_sdcard_full),Snackbar.LENGTH_SHORT).show()
+        })
 
-
-    private fun onRecord(start: Boolean) = if (start) {
-        startRecording()
-    } else {
-        stopRecording()
-    }
-
-    private fun onPlay(start: Boolean) = if (start) {
-        startPlaying()
-    } else {
-        stopPlaying()
-    }
-
-    private fun startPlaying() {
-        player = MediaPlayer().apply {
-            try {
-                setDataSource(fileName)
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e("test", "prepare() failed")
+        trainingViewModel.checkMicPermissionEvent.observe(this, Observer {
+            if (trainingViewModel.isFileSystemAvailable()) {
+                var result = false
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    result = true
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    result = true
+                }
+                if (result) {
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO), RecoderConfig.EXTRA_REQUEST_PERMISSION)
+                }
+                // 권한 승인
+                else {
+                    trainingViewModel.record()
+                }
             }
-        }
-    }
+        })
 
-    private fun stopPlaying() {
-        player?.release()
-        player = null
-    }
+        trainingViewModel.bottomSheetShow.observe(this, Observer {
+            if (it) {
+                sp_category.apply {
+                    adapter = object : ArrayAdapter<String>(
+                        context,
+                        R.layout.item_spinner_text,
+                        trainingViewModel.trainingMap.keys.toList()
+                    ) {
+                        override fun getDropDownView(
+                            position: Int,
+                            convertView: View?,
+                            parent: ViewGroup
+                        ): View {
+                            val v = super.getDropDownView(position, null, parent)
+                            if (position == sp_category.selectedItemPosition) {
+                                (v as TextView).apply {
+                                    setBackgroundColor(Color.parseColor("#242424"))
+                                    setTextColor(Color.parseColor("#bb2a2d"))
+                                }
+                            } else {
+                                (v as TextView).apply {
+                                    setBackgroundColor(Color.parseColor("#242424"))
+                                    setTextColor(Color.parseColor("#99FFFFFF"))
+                                }
+                            }
+                            return v
+                        }
+                    }
+                    setSelection(trainingViewModel.trainingMap.keys.indexOf(tv_category.text))
+                    onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onNothingSelected(p0: AdapterView<*>?) {
+                        }
 
-    private fun startRecording() {
-        recorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            setOutputFile(fileName)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-
-            try {
-                prepare()
-            } catch (e: IOException) {
-                Log.e("test", "prepare() failed")
+                        override fun onItemSelected(
+                            p0: AdapterView<*>?,
+                            p1: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            trainingContentAdapter.apply {
+                                selectedItem = trainingViewModel.trainingData.value?.get(
+                                    trainingViewModel.currentPosition.value
+                                        ?: 0
+                                )
+                                setData(trainingViewModel.trainingMap[(p1 as TextView).text] as ArrayList<TrainingEntity>?)
+                            }
+                            trainingContentAdapter.getItemSelectedPosition().let {
+                                if (it >= 0) {
+                                    (rc_training.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                                        it,
+                                        0
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                BottomSheetBehavior.from(layout_bottom_index).peekHeight = 1200
+            } else {
+                BottomSheetBehavior.from(layout_bottom_index).peekHeight = 0
             }
+        })
 
-            start()
-        }
+        adapterRepository.trainingMoveEvent.observe(this, Observer { item ->
+            trainingViewModel.trainingData.value?.indexOf(item)?.let {
+                trainingViewModel.changePosition(it)
+            }
+        })
+
     }
 
-    private fun stopRecording() {
-        recorder?.apply {
-            stop()
-            release()
-        }
-        recorder = null
-    }
-
-
-    override fun onStop() {
-        super.onStop()
-        recorder?.release()
-        recorder = null
-        player?.release()
-        player = null
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionToRecordAccepted = if (requestCode == RecoderConfig.REQUEST_AUDIO_PERMISSION) {
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        } else {
-            false
+        when (requestCode) {
+            RecoderConfig.EXTRA_REQUEST_PERMISSION -> {
+                var permissionResult = true
+                permissions.forEachIndexed { index, s ->
+                    if (grantResults[index] == PackageManager.PERMISSION_DENIED) {
+                        permissionResult = false
+                    }
+                }
+                if (permissionResult) {
+                    trainingViewModel.record()
+                }
+            }
         }
-        if (!permissionToRecordAccepted) finish()
     }
+
 
 }

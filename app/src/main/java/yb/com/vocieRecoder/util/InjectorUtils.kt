@@ -16,8 +16,10 @@
 
 package yb.com.vocieRecoder.util
 
-import yb.com.vocieRecoder.util.repository.PlayerRepository
-import yb.com.vocieRecoder.util.repository.RecorderRepository
+import yb.com.vocieRecoder.model.repository.AdapterRepository
+import yb.com.vocieRecoder.model.repository.PlayerRepository
+import yb.com.vocieRecoder.model.repository.RecorderRepository
+import yb.com.vocieRecoder.util.viewmodels.AdapterViewModel
 import yb.com.vocieRecoder.util.viewmodels.TrainingViewModel
 
 /**
@@ -31,6 +33,11 @@ object InjectorUtils {
 
     private fun provideRecorderRepository(): RecorderRepository {
         return RecorderRepository.getInstance()
+    }
+
+    fun provideAdapterViewModel(repository: AdapterRepository)
+            : AdapterViewModel {
+        return AdapterViewModel(repository)
     }
 
 

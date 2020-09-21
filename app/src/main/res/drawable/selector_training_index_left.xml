@@ -1,0 +1,4 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <item android:drawable="@drawable/ic_list_w" android:state_selected="true" />
+    <item android:drawable="@drawable/ic_list" />
+</selector>

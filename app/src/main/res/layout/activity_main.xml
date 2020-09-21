@@ -7,6 +7,10 @@
 
     <data>
 
+        <import type="android.view.View" />
+
+        <import type="android.text.Html" />
+
         <variable
             name="commonUtil"
             type="yb.com.vocieRecoder.util.CommonUtil" />
@@ -17,237 +21,366 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.MainActivity">
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_body"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/bg_rect_1"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="match_parent"
+            android:background="@color/color_e8e8e8"
+            tools:context=".ui.MainActivity">
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/layout_quiz"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:padding="16dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/layout_chinese"
+                        android:layout_width="match_parent"
+                        android:layout_height="252dp"
+                        android:background="@drawable/bg_round_white_1"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/tv_category"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/sans_bold"
+                            android:gravity="center"
+                            android:paddingTop="8dp"
+                            android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).category}"
+                            android:textColor="@color/color_333333"
+                            android:textSize="12sp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="카테고리가 들어갈 곳" />
+
+                        <TextView
+                            android:id="@+id/tv_index"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/sans_bold"
+                            android:text="@{@string/format_index(trainingViewModel.getTrainingMapIndex(trainingViewModel.currentPosition) + 1)}"
+                            android:textColor="@color/color_bb2a2d"
+                            android:textSize="18sp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/tv_category"
+                            tools:text="02" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginTop="6dp"
+                            android:layout_marginRight="16dp"
+                            android:background="@color/color_e8e8e8"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/tv_index" />
+
+                        <androidx.core.widget.NestedScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginTop="19dp"
+                            android:fillViewport="true"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/tv_index">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent">
+
+                                <androidx.appcompat.widget.AppCompatTextView
+                                    android:id="@+id/tv_pinyin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:fontFamily="@font/sans_regular"
+                                    android:gravity="center|bottom"
+                                    android:minHeight="100dp"
+                                    android:paddingLeft="35dp"
+                                    android:paddingRight="35dp"
+                                    android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).pinyin}"
+                                    android:textColor="@color/color_8e8e8e"
+                                    android:textSize="14sp"
+                                    app:layout_constraintBottom_toTopOf="@+id/tv_word"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    tools:text="Tā zhēn bú shì shěng yóu de dēng, " />
+
+                                <androidx.appcompat.widget.AppCompatTextView
+                                    android:id="@+id/tv_word"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginTop="8dp"
+                                    android:fontFamily="@font/sans_medium"
+                                    android:gravity="center_horizontal"
+                                    android:minHeight="100dp"
+                                    android:paddingLeft="56dp"
+                                    android:paddingRight="56dp"
+                                    android:paddingBottom="8dp"
+                                    android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).word}"
+                                    android:textColor="@color/black"
+                                    android:textSize="18sp"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/tv_pinyin"
+                                    tools:text="Tā zhēn bú shì shěng yóu" />
+
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                        </androidx.core.widget.NestedScrollView>
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                    <androidx.core.widget.NestedScrollView
+                        android:id="@+id/layout_mean"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_round_white_1"
+                        android:fillViewport="true"
+                        app:layout_constraintTop_toBottomOf="@+id/layout_chinese">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/tv_mean"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:fontFamily="@font/sans_medium"
+                                android:gravity="center"
+                                android:paddingLeft="64dp"
+                                android:paddingTop="16dp"
+                                android:paddingRight="64dp"
+                                android:paddingBottom="16dp"
+                                android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).mean}"
+                                android:textColor="@color/color_333333"
+                                android:textSize="14sp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:text="그는 정말 만만한 사람이 아니다. 사장이라는 이 자리에 오르기 위해,이렇게 많은 나쁜 일을 하였다.그는 정말 만만한 사람이 아니다.그는 정말 만만한 사람이 아니다.사장이라는 이 자리에 오르기 위해,이렇게 많은 나쁜 일을 하였다.그는 정말 만만한 사람이 아니다. " />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.core.widget.NestedScrollView>
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
 
             <TextView
-                android:id="@+id/tv_category"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:gravity="center_vertical"
-                android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).category}"
-                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:text="녹음시간"
+                app:layout_constraintBottom_toBottomOf="@id/tv_separator"
+                app:layout_constraintRight_toLeftOf="@id/tv_separator"
+                app:layout_constraintTop_toTopOf="@id/tv_separator" />
+
+            <TextView
+                android:id="@+id/tv_separator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="|"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="action" />
+                app:layout_constraintTop_toBottomOf="@+id/layout_quiz" />
 
-            <View
+            <TextView
+                android:id="@+id/tv_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@{commonUtil.getTimeStamp(Integer.toString(trainingViewModel.recordTime))}"
+                app:layout_constraintBottom_toBottomOf="@id/tv_separator"
+                app:layout_constraintLeft_toRightOf="@id/tv_separator"
+                app:layout_constraintTop_toTopOf="@id/tv_separator"
+                tools:text="00:00" />
+
+            <ImageView
+                android:id="@+id/iv_record"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:onClick="@{() -> trainingViewModel.checkMic()}"
+                app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/iv_media"
+                app:layout_constraintTop_toBottomOf="@+id/tv_separator"
+                tools:src="@drawable/ic_round_mic_24" />
+
+            <TextView
+                android:id="@+id/tv_record"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="녹음하기"
+                android:textSize="13sp"
+                app:layout_constraintLeft_toLeftOf="@+id/iv_record"
+                app:layout_constraintRight_toRightOf="@+id/iv_record"
+                app:layout_constraintTop_toBottomOf="@+id/iv_record" />
+
+            <ImageView
+                android:id="@+id/iv_media"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/ic_baseline_headset_24"
+                app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
+                app:layout_constraintLeft_toRightOf="@+id/iv_record"
+                app:layout_constraintRight_toLeftOf="@+id/iv_google_media"
+                app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
+
+            <TextView
+                android:id="@+id/tv_media"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내발음듣기"
+                android:textSize="13sp"
+                app:layout_constraintLeft_toLeftOf="@+id/iv_media"
+                app:layout_constraintRight_toRightOf="@+id/iv_media"
+                app:layout_constraintTop_toBottomOf="@+id/iv_media" />
+
+            <ImageView
+                android:id="@+id/iv_google_media"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/ic_baseline_record_voice_over_24"
+                app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
+                app:layout_constraintLeft_toRightOf="@+id/iv_media"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
+
+            <TextView
+                android:id="@+id/tv_google_media"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="구글친구 발음듣기"
+                android:textSize="13sp"
+                app:layout_constraintLeft_toLeftOf="@+id/iv_google_media"
+                app:layout_constraintRight_toRightOf="@+id/iv_google_media"
+                app:layout_constraintTop_toBottomOf="@+id/iv_google_media" />
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/line_border_1"
-                app:layout_constraintBottom_toBottomOf="@id/tv_category" />
+                android:layout_height="0dp"
+                android:onClick="@{() -> trainingViewModel.closeBottomSheetIndex()}"
+                android:visibility="@{trainingViewModel.bottomSheetShow ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="gone">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.7"
+                    android:background="@color/black" />
+
+                <include
+                    layout="@layout/bottom_training"
+                    bind:trainingViewModel="@{trainingViewModel}" />
+
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layout_chinese"
+                android:id="@+id/layout_bottom"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                app:layout_constraintTop_toBottomOf="@+id/tv_category">
+                android:layout_height="52dp"
+                android:background="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
                 <TextView
-                    android:id="@+id/tv_pinyin"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).pinyin}"
-                    android:textSize="25sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Nánde qù yínháng" />
-
-                <TextView
-                    android:id="@+id/tv_word"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).word}"
-                    android:textSize="18sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/ic_arrow_left_line"
+                    android:drawablePadding="8dp"
+                    android:enabled="@{!trainingViewModel.isFirstPage}"
+                    android:fontFamily="@font/sans_medium"
+                    android:gravity="center"
+                    android:onClick="@{trainingViewModel.pageChangeButtonListener}"
+                    android:paddingLeft="20dp"
+                    android:tag="-1"
+                    android:text="@string/training_content_pre"
+                    android:textColor="@color/color_8e8e8e"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_bottom_index"
+                    isSelected="@{trainingViewModel.bottomSheetShow}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/selector_training_index_bg"
+                    android:drawableLeft="@drawable/selector_training_index_left"
+                    android:drawablePadding="4dp"
+                    android:fontFamily="@font/sans_medium"
+                    android:gravity="center"
+                    android:onClick="@{() -> trainingViewModel.showBottomSheetIndex()}"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:text="@{trainingViewModel.bottomSheetShow ? Html.fromHtml(@string/pager_position_2_type_b(trainingViewModel.currentPosition + 1, trainingViewModel.trainingData.size())) : Html.fromHtml(@string/pager_position_2_type_a(trainingViewModel.currentPosition + 1, trainingViewModel.trainingData.size()))}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_pinyin"
-                    tools:text="男的 去 银行。" />
+                    tools:text="1 / 5" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawableRight="@drawable/ic_arrow_right_line"
+                    android:drawablePadding="8dp"
+                    android:enabled="@{!trainingViewModel.isLastPage()}"
+                    android:fontFamily="@font/sans_medium"
+                    android:gravity="center"
+                    android:onClick="@{trainingViewModel.pageChangeButtonListener}"
+                    android:paddingRight="20dp"
+                    android:tag="1"
+                    android:text="@{@string/training_content_next}"
+                    android:textColor="@color/color_default_text_white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    tools:text="다음 문제" />
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/line_border_1"
-                app:layout_constraintBottom_toBottomOf="@id/layout_chinese" />
 
-            <TextView
-                android:id="@+id/tv_mean"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).mean}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layout_chinese"
-                tools:text="남자는 은행에 갑니다" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:text="녹음시간"
-            app:layout_constraintBottom_toBottomOf="@id/tv_separator"
-            app:layout_constraintRight_toLeftOf="@id/tv_separator"
-            app:layout_constraintTop_toTopOf="@id/tv_separator" />
-
-        <TextView
-            android:id="@+id/tv_separator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:text="|"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_body" />
-
-        <TextView
-            android:id="@+id/tv_timestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="@{commonUtil.getTimeStamp(Integer.toString(trainingViewModel.recordTime))}"
-            app:layout_constraintBottom_toBottomOf="@id/tv_separator"
-            app:layout_constraintLeft_toRightOf="@id/tv_separator"
-            app:layout_constraintTop_toTopOf="@id/tv_separator"
-            tools:text="00:00" />
-
-        <ImageView
-            android:id="@+id/iv_record"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:onClick="@{() -> trainingViewModel.record()}"
-            app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/iv_media"
-            app:layout_constraintTop_toBottomOf="@+id/tv_separator"
-            tools:src="@drawable/ic_round_mic_24" />
-
-        <TextView
-            android:id="@+id/tv_record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="녹음하기"
-            android:textSize="13sp"
-            app:layout_constraintLeft_toLeftOf="@+id/iv_record"
-            app:layout_constraintRight_toRightOf="@+id/iv_record"
-            app:layout_constraintTop_toBottomOf="@+id/iv_record" />
-
-        <ImageView
-            android:id="@+id/iv_media"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:src="@drawable/ic_baseline_headset_24"
-            app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-            app:layout_constraintLeft_toRightOf="@+id/iv_record"
-            app:layout_constraintRight_toLeftOf="@+id/iv_google_media"
-            app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
-
-        <TextView
-            android:id="@+id/tv_media"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="내발음듣기"
-            android:textSize="13sp"
-            app:layout_constraintLeft_toLeftOf="@+id/iv_media"
-            app:layout_constraintRight_toRightOf="@+id/iv_media"
-            app:layout_constraintTop_toBottomOf="@+id/iv_media" />
-
-        <ImageView
-            android:id="@+id/iv_google_media"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:src="@drawable/ic_baseline_record_voice_over_24"
-            app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-            app:layout_constraintLeft_toRightOf="@+id/iv_media"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
-
-        <TextView
-            android:id="@+id/tv_google_media"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="구글친구 발음듣기"
-            android:textSize="13sp"
-            app:layout_constraintLeft_toLeftOf="@+id/iv_google_media"
-            app:layout_constraintRight_toRightOf="@+id/iv_google_media"
-            app:layout_constraintTop_toBottomOf="@+id/iv_google_media" />
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/line_border_1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:enabled="@{!trainingViewModel.isFirstPage}"
-                android:gravity="center"
-                android:onClick="@{trainingViewModel.pageChangeButtonListener}"
-                android:paddingLeft="20dp"
-                android:tag="-1"
-                android:text="이전문장"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@{@string/pager_position(trainingViewModel.currentPosition + 1, trainingViewModel.trainingData.size())}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:text="1 / 5" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:enabled="@{!trainingViewModel.isLastPage()}"
-                android:gravity="center"
-                android:onClick="@{trainingViewModel.pageChangeButtonListener}"
-                android:paddingRight="20dp"
-                android:tag="1"
-                android:text="다음문장"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
 
