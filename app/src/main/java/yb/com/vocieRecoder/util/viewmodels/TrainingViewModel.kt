@@ -1,15 +1,13 @@
 package yb.com.vocieRecoder.util.viewmodels
 
 import android.view.View
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
+import yb.com.vocieRecoder.R
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import yb.com.vocieRecoder.AppDatabase
 import yb.com.vocieRecoder.RecoderApplication
+import yb.com.vocieRecoder.RecoderApplication.Companion.getGlobalContext
 import yb.com.vocieRecoder.base.BaseViewModel
 import yb.com.vocieRecoder.base.SingleLiveEvent
 import yb.com.vocieRecoder.model.entity.TrainingEntity
@@ -17,6 +15,7 @@ import yb.com.vocieRecoder.model.repository.PlayerRepository
 import yb.com.vocieRecoder.model.repository.PlayerRepository.PLAYER_STATE
 import yb.com.vocieRecoder.model.repository.RecorderRepository
 import yb.com.vocieRecoder.model.repository.RecorderRepository.RECORDER_STATE
+import yb.com.vocieRecoder.util.CommonUtil
 
 class TrainingViewModel(
     val playerRepository: PlayerRepository,
@@ -32,9 +31,11 @@ class TrainingViewModel(
         MutableLiveData<Int>().apply { postValue(0) }
     private val _isFirstPage = MutableLiveData<Boolean>().apply { postValue(true) }
     private val _isLastPage = MutableLiveData<Boolean>().apply { postValue(false) }
+    private val _speakType: MutableLiveData<SPEAK_TYPE> = MutableLiveData<SPEAK_TYPE>()
     private val _bottomSheetShow: MutableLiveData<Boolean> = MutableLiveData<Boolean>()
 
     val bottomSheetShow: LiveData<Boolean> get() = _bottomSheetShow
+    val speakType: LiveData<SPEAK_TYPE> = _speakType
     val trainingData: LiveData<List<TrainingEntity>> get() = _trainingData
     val isFirstPage: LiveData<Boolean> get() = _isFirstPage
     val isLastPage: LiveData<Boolean> get() = _isLastPage
@@ -46,19 +47,47 @@ class TrainingViewModel(
     private val _lastPageEvent = SingleLiveEvent<Any>()
     private val _checkMicPermissionEvent = SingleLiveEvent<Any>()
     private val _sdCardStorageErrorEvent = SingleLiveEvent<Any>()
+    private val _selfRecordEmptyEvent = SingleLiveEvent<Any>()
 
+    val selfRecordEmptyEvent: LiveData<Any> get() = _selfRecordEmptyEvent
     val sdCardStorageErrorEvent: LiveData<Any> get() = _sdCardStorageErrorEvent
     val checkMicPermissionEvent: LiveData<Any> = _checkMicPermissionEvent
     val lastPageEvent: LiveData<Any> get() = _lastPageEvent
 
-    val currentPositionObserver = Observer<Int> {
+    val currentPositionObserver = Observer<Int> { currentPosition ->
+        recordCancel()
+        mediaStop()
+        _isFirstPage.value = currentPosition == 0
+        _isLastPage.value = currentPosition == trainingData.value?.size?.minus(1)
+    }
 
+    val recordStateObserver = Observer<RECORDER_STATE> {
+        when (it) {
+            RECORDER_STATE.CANCEL -> {
+
+            }
+            RECORDER_STATE.END -> {
+                trainingData.value?.get(currentPosition.value ?: 0)?.isRecord = true
+
+                AppDatabase.getInstance(getGlobalContext()).apply {
+                    trainingDao().insertMedia(trainingData.value ?: return@apply)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { _, _ ->
+
+                        }
+                }
+
+            }
+        }
     }
 
     init {
+        title.value = getGlobalContext().resources.getString(R.string.app_name)
+        recordState.observeForever(recordStateObserver)
         currentPosition.observeForever(currentPositionObserver)
 
-        AppDatabase.getInstance(RecoderApplication.getGlobalContext()).apply {
+        AppDatabase.getInstance(getGlobalContext()).apply {
             trainingDao().getDatas()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -70,16 +99,46 @@ class TrainingViewModel(
         }
     }
 
+    fun checkMic() {
+        _checkMicPermissionEvent.call()
+    }
+
+    fun mediaPlay(position: Int, type: SPEAK_TYPE) {
+        mediaStop()
+        _speakType.postValue(type)
+        val mediaFile = trainingData.value?.get(position)?.mediaFile ?: return
+        when (type) {
+            SPEAK_TYPE.NATIVE -> {
+                playerRepository.play(getGlobalContext().assets.openFd(mediaFile))
+            }
+            SPEAK_TYPE.SELF -> {
+                if (trainingData.value?.get(position)?.isRecord == true) {
+                    playerRepository.play(
+                        CommonUtil.getPrivateMusicStorageDir(
+                            getGlobalContext(),
+                            mediaFile
+                        )?.absolutePath
+                            ?: return
+                    )
+                } else {
+                    _selfRecordEmptyEvent.call()
+                    return
+                }
+            }
+        }
+    }
+
+    fun mediaStop() {
+        playerRepository.stop()
+    }
+
     fun record() {
         playerRepository.stop()
 
         when (recordState.value) {
             RECORDER_STATE.IDLE, RECORDER_STATE.CANCEL, RECORDER_STATE.END -> {
                 trainingData.value?.get(currentPosition.value ?: 0)?.apply {
-                    recorderRepository.startRecord(
-                        mediaFile,
-                        recordTime
-                    )
+                    recorderRepository.startRecord(mediaFile, recordTime)
                 }
             }
 
@@ -93,9 +152,10 @@ class TrainingViewModel(
         recorderRepository.cancelRecord()
     }
 
-    fun checkMic() {
-        _checkMicPermissionEvent.call()
+    fun stopRecord(path: String) {
+        recorderRepository.stopRecord(path)
     }
+
 
     fun changePosition(position: Int) {
         _currentPosition.postValue(position)
@@ -144,9 +204,10 @@ class TrainingViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        closeBottomSheetIndex()
         currentPosition.removeObserver(currentPositionObserver)
+        recordState.removeObserver(recordStateObserver)
 
-        // TODO END 처리 요청 하거나 onCleared()호출로 하던가
         playerRepository.onCleared()
         recorderRepository.onCleared()
     }

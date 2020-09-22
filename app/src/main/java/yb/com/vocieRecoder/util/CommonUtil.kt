@@ -75,11 +75,11 @@ object CommonUtil {
     }
 
     fun getTimeStamp(duration: String): String {
-        val time: String
-        val dur = duration.toLong()
-        val seconds = ((dur % 60)).toString()
+        var time: String
+        var dur = duration.toLong()
+        var seconds = ((dur % 60000) / 1000).toString()
 
-        val minutes = (dur / 60).toString()
+        var minutes = (dur / 60000).toString()
         time = if (seconds.length == 1) {
             "0$minutes:0$seconds"
         } else {

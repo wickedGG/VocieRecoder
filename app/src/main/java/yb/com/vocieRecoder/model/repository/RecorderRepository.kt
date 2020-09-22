@@ -5,6 +5,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -27,10 +28,22 @@ class RecorderRepository {
 
     private var recorder: MediaRecorder? = null
 
+    val recordStateObserver = Observer<RECORDER_STATE> {
+        when (it) {
+            RECORDER_STATE.END -> {
+                _recordState.postValue(RECORDER_STATE.IDLE)
+            }
+        }
+    }
+
+    init {
+        recordState.observeForever(recordStateObserver)
+    }
+
 
     fun startRecord(path: String, recordTime: Int) {
         disposables.clear()
-
+        _recordTime.postValue(0)
         recorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -38,8 +51,8 @@ class RecorderRepository {
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
             try {
                 prepare()
-            } catch (e: IOException) {
-                Log.e("test", "prepare() failed")
+            } catch (it: IOException) {
+                it.printStackTrace()
             }
             start()
             _recordState.postValue(RECORDER_STATE.RECORDING)
@@ -52,16 +65,16 @@ class RecorderRepository {
             .observeOn(Schedulers.io())
             .onBackpressureDrop()
             .doOnNext {
-                _recordTime.postValue(recordTime.minus(it).toInt())
+                _recordTime.postValue((recordTime.minus(it) * 1000).toInt())
             }.doOnCancel {
-                _recordState.postValue(RECORDER_STATE.CANCEL)
-                stopRecord()
+                if (recorder != null && recordState.value != (RECORDER_STATE.END)) {
+                    _recordState.postValue(RECORDER_STATE.CANCEL)
+                    realseRecord()
+                }
             }
             .subscribe {
                 if (it >= recordTime) {
-                    stopRecord()
-                    copyRecord(path)
-                    _recordState.postValue(RECORDER_STATE.END)
+                    stopRecord(path)
                 }
             })
     }
@@ -70,7 +83,14 @@ class RecorderRepository {
         disposables.clear()
     }
 
-    fun stopRecord() {
+    fun stopRecord(path: String) {
+        realseRecord()
+        copyRecord(path)
+        _recordState.postValue(RECORDER_STATE.END)
+        disposables.clear()
+    }
+
+    fun realseRecord() {
         recorder?.apply {
             stop()
             release()
@@ -86,14 +106,14 @@ class RecorderRepository {
     }
 
     fun isFileSystemAvailable(): Boolean {
-        var file = Environment.getExternalStorageDirectory()
-
+        val file = Environment.getExternalStorageDirectory()
         return file.freeSpace > RecoderConfig.MAX_FILE_SIZE
     }
 
 
     fun onCleared() {
-        stopRecord()
+        cancelRecord()
+        recordState.removeObserver(recordStateObserver)
     }
 
     companion object {

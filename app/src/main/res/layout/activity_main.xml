@@ -11,6 +11,12 @@
 
         <import type="android.text.Html" />
 
+        <import type="yb.com.vocieRecoder.model.repository.RecorderRepository.RECORDER_STATE" />
+
+        <import type="yb.com.vocieRecoder.util.viewmodels.TrainingViewModel.SPEAK_TYPE" />
+
+        <import type="yb.com.vocieRecoder.model.repository.PlayerRepository.PLAYER_STATE" />
+
         <variable
             name="commonUtil"
             type="yb.com.vocieRecoder.util.CommonUtil" />
@@ -34,9 +40,12 @@
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/layout_quiz"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:fillViewport="true"
-                android:padding="16dp"
+                android:paddingLeft="16dp"
+                android:paddingTop="16dp"
+                android:paddingRight="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -48,9 +57,11 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/layout_chinese"
                         android:layout_width="match_parent"
-                        android:layout_height="252dp"
-                        android:background="@drawable/bg_round_white_1"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:layout_height="0dp"
+                        android:background="@drawable/bg_round_white_4"
+                        app:layout_constraintHeight_percent="0.5"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintWidth_default="percent">
 
                         <TextView
                             android:id="@+id/tv_category"
@@ -65,7 +76,7 @@
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:text="카테고리가 들어갈 곳" />
+                            tools:text="TSC 필수어법" />
 
                         <TextView
                             android:id="@+id/tv_index"
@@ -106,10 +117,9 @@
                                 <androidx.appcompat.widget.AppCompatTextView
                                     android:id="@+id/tv_pinyin"
                                     android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
+                                    android:layout_height="wrap_content"
                                     android:fontFamily="@font/sans_regular"
-                                    android:gravity="center|bottom"
-                                    android:minHeight="100dp"
+                                    android:gravity="center_horizontal"
                                     android:paddingLeft="35dp"
                                     android:paddingRight="35dp"
                                     android:text="@{trainingViewModel.trainingData.get(trainingViewModel.currentPosition).pinyin}"
@@ -119,16 +129,16 @@
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toTopOf="parent"
-                                    tools:text="Tā zhēn bú shì shěng yóu de dēng, " />
+                                    app:layout_constraintVertical_chainStyle="packed"
+                                    tools:text="Tā zhēn bú shì shěng yóu de dēng" />
 
                                 <androidx.appcompat.widget.AppCompatTextView
                                     android:id="@+id/tv_word"
                                     android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
+                                    android:layout_height="wrap_content"
                                     android:layout_marginTop="8dp"
                                     android:fontFamily="@font/sans_medium"
                                     android:gravity="center_horizontal"
-                                    android:minHeight="100dp"
                                     android:paddingLeft="56dp"
                                     android:paddingRight="56dp"
                                     android:paddingBottom="8dp"
@@ -154,11 +164,13 @@
                     <androidx.core.widget.NestedScrollView
                         android:id="@+id/layout_mean"
                         android:layout_width="match_parent"
-                        android:layout_height="150dp"
+                        android:layout_height="0dp"
                         android:layout_marginTop="12dp"
-                        android:background="@drawable/bg_round_white_1"
+                        android:background="@drawable/bg_round_white_4"
                         android:fillViewport="true"
-                        app:layout_constraintTop_toBottomOf="@+id/layout_chinese">
+                        app:layout_constraintHeight_percent="0.32"
+                        app:layout_constraintTop_toBottomOf="@+id/layout_chinese"
+                        app:layout_constraintWidth_default="percent">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
@@ -188,106 +200,139 @@
                     </androidx.core.widget.NestedScrollView>
 
 
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="14dp"
+                        android:visibility="@{trainingViewModel.recordState == RECORDER_STATE.RECORDING? View.GONE : View.VISIBLE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/layout_mean">
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_record"
+                            android:layout_width="104dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_round_red_2"
+                            android:drawableLeft="@drawable/ic_mic_s"
+                            android:fontFamily="@font/sans_bold"
+                            android:onClick="@{() -> trainingViewModel.checkMic()}"
+                            android:padding="10dp"
+                            android:text="녹음하기"
+                            android:textColor="@color/text_white"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintHorizontal_chainStyle="spread_inside"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toLeftOf="@+id/btn_play_self"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_play_self"
+                            isSelected="@{trainingViewModel.speakType==SPEAK_TYPE.SELF &amp;&amp; trainingViewModel.playerState == PLAYER_STATE.PLAY}"
+                            android:layout_width="104dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/selector_training_border"
+                            android:drawableLeft="@drawable/selector_training_self"
+                            android:fontFamily="@font/sans_bold"
+                            android:onClick="@{() -> trainingViewModel.mediaPlay(trainingViewModel.currentPosition, SPEAK_TYPE.SELF)}"
+                            android:padding="9dp"
+                            android:text="내 발음 듣기"
+                            android:textColor="@drawable/selector_training_text"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toRightOf="@+id/btn_record"
+                            app:layout_constraintRight_toLeftOf="@+id/btn_play_native"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_play_native"
+                            isSelected="@{trainingViewModel.speakType==SPEAK_TYPE.NATIVE &amp;&amp;trainingViewModel.playerState == PLAYER_STATE.PLAY}"
+                            android:layout_width="104dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/selector_training_border"
+                            android:drawableLeft="@drawable/selector_training_native"
+                            android:fontFamily="@font/sans_bold"
+                            android:onClick="@{() -> trainingViewModel.mediaPlay(trainingViewModel.currentPosition, SPEAK_TYPE.NATIVE)}"
+                            android:padding="10dp"
+                            android:text="원어민 발음"
+                            android:textColor="@drawable/selector_training_text"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toRightOf="@+id/btn_play_self"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.core.widget.NestedScrollView>
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:text="녹음시간"
-                app:layout_constraintBottom_toBottomOf="@id/tv_separator"
-                app:layout_constraintRight_toLeftOf="@id/tv_separator"
-                app:layout_constraintTop_toTopOf="@id/tv_separator" />
-
-            <TextView
-                android:id="@+id/tv_separator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="35dp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="|"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_quiz" />
-
-            <TextView
-                android:id="@+id/tv_timestamp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="@{commonUtil.getTimeStamp(Integer.toString(trainingViewModel.recordTime))}"
-                app:layout_constraintBottom_toBottomOf="@id/tv_separator"
-                app:layout_constraintLeft_toRightOf="@id/tv_separator"
-                app:layout_constraintTop_toTopOf="@id/tv_separator"
-                tools:text="00:00" />
-
-            <ImageView
-                android:id="@+id/iv_record"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginBottom="10dp"
-                android:onClick="@{() -> trainingViewModel.checkMic()}"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="82dp"
+                android:visibility="@{trainingViewModel.recordState == RECORDER_STATE.RECORDING? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/iv_media"
-                app:layout_constraintTop_toBottomOf="@+id/tv_separator"
-                tools:src="@drawable/ic_round_mic_24" />
+                tools:visibility="gone">
 
-            <TextView
-                android:id="@+id/tv_record"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="녹음하기"
-                android:textSize="13sp"
-                app:layout_constraintLeft_toLeftOf="@+id/iv_record"
-                app:layout_constraintRight_toRightOf="@+id/iv_record"
-                app:layout_constraintTop_toBottomOf="@+id/iv_record" />
+                <ImageView
+                    android:id="@+id/iv_record_bg"
+                    android:layout_width="74dp"
+                    android:layout_height="74dp"
+                    android:background="@drawable/gradient_training_round"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/iv_media"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginBottom="10dp"
-                android:src="@drawable/ic_baseline_headset_24"
-                app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-                app:layout_constraintLeft_toRightOf="@+id/iv_record"
-                app:layout_constraintRight_toLeftOf="@+id/iv_google_media"
-                app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="41dp"
+                    android:background="@drawable/gradient_training_bg"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-            <TextView
-                android:id="@+id/tv_media"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="내발음듣기"
-                android:textSize="13sp"
-                app:layout_constraintLeft_toLeftOf="@+id/iv_media"
-                app:layout_constraintRight_toRightOf="@+id/iv_media"
-                app:layout_constraintTop_toBottomOf="@+id/iv_media" />
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/bg_round_white_5"
+                    android:onClick="@{() -> trainingViewModel.stopRecord(trainingViewModel.trainingData.get(trainingViewModel.currentPosition).mediaFile)}"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_record_bg"
+                    app:layout_constraintEnd_toEndOf="@+id/iv_record_bg"
+                    app:layout_constraintStart_toStartOf="@+id/iv_record_bg"
+                    app:layout_constraintTop_toTopOf="@+id/iv_record_bg" />
 
-            <ImageView
-                android:id="@+id/iv_google_media"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginBottom="10dp"
-                android:src="@drawable/ic_baseline_record_voice_over_24"
-                app:layout_constraintBottom_toTopOf="@+id/layout_bottom"
-                app:layout_constraintLeft_toRightOf="@+id/iv_media"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_separator" />
+                <ImageView
+                    android:id="@+id/btn_record_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:src="@drawable/btn_pause"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_record_bg"
+                    app:layout_constraintEnd_toEndOf="@+id/iv_record_bg"
+                    app:layout_constraintStart_toStartOf="@+id/iv_record_bg"
+                    app:layout_constraintTop_toTopOf="@+id/iv_record_bg" />
 
-            <TextView
-                android:id="@+id/tv_google_media"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="구글친구 발음듣기"
-                android:textSize="13sp"
-                app:layout_constraintLeft_toLeftOf="@+id/iv_google_media"
-                app:layout_constraintRight_toRightOf="@+id/iv_google_media"
-                app:layout_constraintTop_toBottomOf="@+id/iv_google_media" />
+                <TextView
+                    android:id="@+id/tv_timestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sans_medium"
+                    android:includeFontPadding="false"
+                    android:text="@{commonUtil.getTimeStamp(Integer.toString(trainingViewModel.recordTime))}"
+                    android:textColor="@color/black"
+                    android:textSize="10sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_record_stop"
+                    tools:text="00:00" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:layout_width="match_parent"
@@ -332,7 +377,7 @@
                     android:paddingLeft="20dp"
                     android:tag="-1"
                     android:text="@string/training_content_pre"
-                    android:textColor="@color/color_8e8e8e"
+                    android:textColor="@drawable/selector_pager_text"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -368,7 +413,7 @@
                     android:paddingRight="20dp"
                     android:tag="1"
                     android:text="@{@string/training_content_next}"
-                    android:textColor="@color/color_default_text_white"
+                    android:textColor="@drawable/selector_pager_text"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     tools:text="다음 문제" />

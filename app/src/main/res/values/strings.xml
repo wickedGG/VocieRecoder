@@ -5,6 +5,7 @@
     <string name="training_content_pre">이전 문제</string>
     <string name="training_content_next">다음 문제</string>
     <string name="training_record_msg_sdcard_full">디바이스에 저장공간이 부족하여 녹음을 진행할 수 없습니다.</string>
+    <string name="training_content_msg_self_record_empty">녹음 완료 후 재생하세요.</string>
 
     <string name="pager_position">%s / %s</string>
     <string name="pager_position_2_type_a"><![CDATA[<font color=#ffffff>%s</font>]]> <![CDATA[<font color=#666666\>/ %s</font>]]></string>

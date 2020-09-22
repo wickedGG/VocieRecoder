@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -62,44 +63,41 @@ class MainActivity : BaseActivity() {
 
 
     override fun subscribeEvnet() {
-        trainingViewModel.recordState.observe(this, {
-            when (it) {
-                RecorderRepository.RECORDER_STATE.IDLE, RecorderRepository.RECORDER_STATE.CANCEL, RecorderRepository.RECORDER_STATE.END -> {
-                    if (viewDataBinding.ivRecord.drawable is AnimationDrawable) {
-                        (viewDataBinding.ivRecord.drawable as AnimationDrawable).stop()
-                    }
-                    viewDataBinding.ivRecord.setImageDrawable(getDrawable(R.drawable.ic_round_mic_24))
-                }
-
-                RecorderRepository.RECORDER_STATE.RECORDING -> {
-
-                    getDrawable(R.drawable.anim_record).apply {
-                        viewDataBinding.ivRecord.setImageDrawable(this)
-                        (this as AnimationDrawable).start()
-                    }
-                }
-
-                RecorderRepository.RECORDER_STATE.CANCEL, RecorderRepository.RECORDER_STATE.END -> {
-
-                }
-            }
-        })
 
         trainingViewModel.sdCardStorageErrorEvent.observe(this, Observer {
-            Snackbar.make(viewDataBinding.root,getString(R.string.training_record_msg_sdcard_full),Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                viewDataBinding.root,
+                getString(R.string.training_record_msg_sdcard_full),
+                Snackbar.LENGTH_SHORT
+            ).show()
         })
 
         trainingViewModel.checkMicPermissionEvent.observe(this, Observer {
             if (trainingViewModel.isFileSystemAvailable()) {
                 var result = false
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.RECORD_AUDIO
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
                     result = true
                 }
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
                     result = true
                 }
                 if (result) {
-                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO), RecoderConfig.EXTRA_REQUEST_PERMISSION)
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO
+                        ),
+                        RecoderConfig.EXTRA_REQUEST_PERMISSION
+                    )
                 }
                 // 권한 승인
                 else {
@@ -171,6 +169,14 @@ class MainActivity : BaseActivity() {
             }
         })
 
+        trainingViewModel.selfRecordEmptyEvent.observe(this, Observer {
+            Toast.makeText(
+                this,
+                getText(R.string.training_content_msg_self_record_empty),
+                Toast.LENGTH_SHORT
+            ).show()
+        })
+
         adapterRepository.trainingMoveEvent.observe(this, Observer { item ->
             trainingViewModel.trainingData.value?.indexOf(item)?.let {
                 trainingViewModel.changePosition(it)
@@ -179,7 +185,11 @@ class MainActivity : BaseActivity() {
 
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             RecoderConfig.EXTRA_REQUEST_PERMISSION -> {

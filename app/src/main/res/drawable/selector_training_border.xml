@@ -1,0 +1,4 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <item android:drawable="@drawable/border_red" android:state_selected="true" />
+    <item android:drawable="@drawable/border_grey_1" />
+</selector>

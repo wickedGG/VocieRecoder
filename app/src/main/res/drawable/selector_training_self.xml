@@ -1,0 +1,5 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <item android:drawable="@drawable/ic_headset_s_on" android:state_selected="true" />
+    <item android:drawable="@drawable/img_headset_s" android:state_enabled="false"/>
+    <item android:drawable="@drawable/img_headset_s_on" />
+</selector>
